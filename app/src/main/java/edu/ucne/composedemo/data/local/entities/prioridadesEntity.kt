@@ -10,3 +10,5 @@ data class prioridadesEntity(
     var descripcion: String? = "",
     var diasCompromiso: Int? = 0
 )
+
+/*Entidad*/
