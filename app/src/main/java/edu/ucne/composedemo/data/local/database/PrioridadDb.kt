@@ -16,3 +16,5 @@ import edu.ucne.composedemo.data.local.entities.prioridadesEntity
 abstract class PrioridadDb : RoomDatabase() {
     abstract fun prioridadDao(): PrioridadDao
 }
+
+/*Agregando la base de datos*/

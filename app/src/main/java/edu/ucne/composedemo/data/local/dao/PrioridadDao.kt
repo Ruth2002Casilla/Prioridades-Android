@@ -32,3 +32,5 @@ interface PrioridadDao {
     suspend fun getAllDias(): List<Int>
 
 }
+
+/*Agregando la Interfaz*/
