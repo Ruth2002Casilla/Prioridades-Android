@@ -112,17 +112,19 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                     Button(
                         onClick = {
                             val diasInt = diasCompromiso.toIntOrNull()
-                            if (diasInt != null && diasInt in 1..365) {
-                                if (descripcion.isNotEmpty() && descripcion[0].isUpperCase()) {
+                            when {
+                                descripcion.isEmpty() || !descripcion[0].isUpperCase() -> {
+                                    errorMessage = "La descripción debe comenzar con una letra mayúscula"
+                                }
+                                diasInt == null || diasInt !in 1..365 -> {
+                                    errorMessage = "Por favor ingrese un número válido entre 1 y 365"
+                                }
+                                else -> {
                                     errorMessage = null
                                     prioridadesList = prioridadesList + Prioridad(prioridadesList.size + 1, descripcion, diasInt)
                                     descripcion = ""
                                     diasCompromiso = ""
-                                } else {
-                                    errorMessage = "La descripción debe comenzar con una letra mayúscula"
                                 }
-                            } else {
-                                errorMessage = "Por favor ingrese un número válido entre 1 y 365"
                             }
                         },
                         modifier = Modifier.weight(1f),
