@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PrioridadDao {
-    @Upsert()
-    suspend fun save(prioridad: PrioridadEntity)
+    @Upsert
+    suspend fun save(prioridad: PrioridadEntity) : Long
 
     @Query(
         """
@@ -31,6 +31,10 @@ interface PrioridadDao {
     @Query("SELECT diasCompromiso FROM Prioridades")
     suspend fun getAllDias(): List<Int>
 
+
+
 }
+
+
 
 /*Agregando la Interfaz*/

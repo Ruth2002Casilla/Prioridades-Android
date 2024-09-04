@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.ucne.composedemo.ui.theme.ProjectPrioridadesTheme
 import androidx.compose.ui.text.TextStyle
+import edu.ucne.composedemo.data.local.entities.PrioridadEntity
 
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +46,7 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var prioridadesList by remember { mutableStateOf(listOf<Prioridad>()) }
+    var prioridadesList by remember { mutableStateOf(listOf<PrioridadEntity>()) }
 
     Column(
         modifier = modifier
@@ -121,7 +122,10 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                                 }
                                 else -> {
                                     errorMessage = null
-                                    prioridadesList = prioridadesList + Prioridad(0, descripcion, diasInt)
+                                    prioridadesList = prioridadesList + PrioridadEntity(
+                                        descripcion = descripcion,
+                                        diasCompromiso = diasInt
+                                    )
                                     descripcion = ""
                                     diasCompromiso = ""
                                 }
@@ -163,7 +167,7 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PrioritiesTable(prioridadesList: List<Prioridad>) {
+fun PrioritiesTable(prioridadesList: List<PrioridadEntity>) {
     Column(modifier = Modifier.fillMaxWidth(0.9f)) {
         Text(
             text = "Datos Guardados",
@@ -208,7 +212,6 @@ fun PrioritiesTable(prioridadesList: List<Prioridad>) {
             )
         }
 
-
         Spacer(modifier = Modifier.height(8.dp))
 
         prioridadesList.forEach { prioridad ->
@@ -219,7 +222,7 @@ fun PrioritiesTable(prioridadesList: List<Prioridad>) {
                     .padding(vertical = 8.dp, horizontal = 16.dp)
             ) {
                 Text(
-                    prioridad.id.toString(),
+                    prioridad.prioridadId.toString(),
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),  // Asegura que el Text ocupe todo el ancho de su peso
@@ -228,7 +231,7 @@ fun PrioritiesTable(prioridadesList: List<Prioridad>) {
                     textAlign = TextAlign.Center  // Centraliza el texto
                 )
                 Text(
-                    prioridad.descripcion,
+                    prioridad.descripcion ?: "",
                     modifier = Modifier
                         .weight(3f)
                         .fillMaxWidth(),
@@ -252,12 +255,6 @@ fun PrioritiesTable(prioridadesList: List<Prioridad>) {
 
     }
 }
-
-data class Prioridad(
-    val id: Int,
-    val descripcion: String,
-    val diasCompromiso: Int
-)
 
 @Preview(showBackground = true)
 @Composable
