@@ -4,13 +4,13 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import edu.ucne.composedemo.data.local.entities.prioridadesEntity
+import edu.ucne.composedemo.data.local.entities.PrioridadEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PrioridadDao {
     @Upsert()
-    suspend fun save(prioridad: prioridadesEntity)
+    suspend fun save(prioridad: PrioridadEntity)
 
     @Query(
         """
@@ -20,13 +20,13 @@ interface PrioridadDao {
         LIMIT 1
         """
     )
-    suspend fun find(id: Int): prioridadesEntity?
+    suspend fun find(id: Int): PrioridadEntity?
 
     @Delete
-    suspend fun delete(aporte: prioridadesEntity)
+    suspend fun delete(aporte: PrioridadEntity)
 
     @Query("SELECT * FROM Prioridades")
-    fun getAll(): Flow<List<prioridadesEntity>>
+    fun getAll(): Flow<List<PrioridadEntity>>
 
     @Query("SELECT diasCompromiso FROM Prioridades")
     suspend fun getAllDias(): List<Int>

@@ -3,11 +3,11 @@ package edu.ucne.composedemo.data.local.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import edu.ucne.composedemo.data.local.dao.PrioridadDao
-import edu.ucne.composedemo.data.local.entities.prioridadesEntity
+import edu.ucne.composedemo.data.local.entities.PrioridadEntity
 
 @Database(
     entities = [
-        prioridadesEntity::class
+        PrioridadEntity::class
     ],
     version = 1,
     exportSchema = false
