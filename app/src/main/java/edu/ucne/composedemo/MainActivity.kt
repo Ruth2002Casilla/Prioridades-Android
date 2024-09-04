@@ -121,7 +121,7 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                                 }
                                 else -> {
                                     errorMessage = null
-                                    prioridadesList = prioridadesList + Prioridad(prioridadesList.size + 1, descripcion, diasInt)
+                                    prioridadesList = prioridadesList + Prioridad(0, descripcion, diasInt)
                                     descripcion = ""
                                     diasCompromiso = ""
                                 }
@@ -134,6 +134,7 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                         Spacer(Modifier.width(4.dp))
                         Text("Guardar")
                     }
+
 
 
                     Spacer(modifier = Modifier.width(16.dp))
