@@ -94,4 +94,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
     implementation(libs.logging.interceptor)
+
+    //Materials
+    implementation(libs.material3)
 }
