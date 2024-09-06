@@ -18,6 +18,8 @@ navigationFragmentCompose = "2.8.0-rc01"
 retrofit = "2.9.0"
 roomCompiler = "2.6.1"
 kspVersion = "2.0.20-1.0.24"
+navigationCompose = "2.8.0-rc01"
+serializationVersion = "1.6.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,7 +49,9 @@ logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", ver
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 ksp = { group = "com.google.devtools.ksp", name = "symbol-processing-api", version.ref = "kspVersion" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serializationVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
