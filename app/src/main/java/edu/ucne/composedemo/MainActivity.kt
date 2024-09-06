@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.room.Room
 import edu.ucne.composedemo.data.local.database.PrioridadDb
 import edu.ucne.composedemo.data.local.entities.PrioridadEntity
+import edu.ucne.composedemo.presentation.prioridades.PrioritiesTable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -201,82 +202,7 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
     }
 }
 
-@Composable
-fun PrioritiesTable(prioridadesList: List<PrioridadEntity>) {
-    Column(modifier = Modifier.fillMaxWidth(0.9f)) {
-        Text(
-            text = "Datos Guardados",
-            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp, color = Color(0xFF6200EE)),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF333333))
-                .padding(vertical = 8.dp, horizontal = 16.dp)
-        ) {
-            Text(
-                "ID",
-                modifier = Modifier.weight(1f),
-                color = Color.White,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                "DESCRIPCIÓN",
-                modifier = Modifier.weight(3f),
-                color = Color.White,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                "DÍAS COMPROMISO",
-                modifier = Modifier.weight(2f),
-                color = Color.White,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        prioridadesList.forEach { prioridad ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF444444))
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            ) {
-                Text(
-                    prioridad.prioridadId.toString(),
-                    modifier = Modifier.weight(1f),
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    prioridad.descripcion ?: "",
-                    modifier = Modifier.weight(3f),
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    "${prioridad.diasCompromiso} días",
-                    modifier = Modifier.weight(2f),
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
