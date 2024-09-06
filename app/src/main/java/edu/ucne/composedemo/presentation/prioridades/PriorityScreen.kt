@@ -48,7 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
+fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPrioridadList: () -> Unit) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -75,11 +75,11 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
             .padding(top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // TopAppBar
+
         TopAppBar(
             title = { Text("Registro de Prioridades") },
             navigationIcon = {
-                IconButton(onClick = { /* Manejar la navegacion aqui */ }) {
+                IconButton(onClick = goPrioridadList) {
                     Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menú")
                 }
             },
