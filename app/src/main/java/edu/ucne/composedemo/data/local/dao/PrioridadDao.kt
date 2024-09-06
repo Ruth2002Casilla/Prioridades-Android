@@ -20,6 +20,7 @@ interface PrioridadDao {
         LIMIT 1
         """
     )
+
     suspend fun find(id: Int): PrioridadEntity?
 
     @Delete
