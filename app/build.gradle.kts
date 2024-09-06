@@ -83,6 +83,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     //  optional - Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:2.6.1")
+    ksp(libs.symbol.processing.api.vjar)
 
     //hilt
     implementation(libs.hilt.android)
