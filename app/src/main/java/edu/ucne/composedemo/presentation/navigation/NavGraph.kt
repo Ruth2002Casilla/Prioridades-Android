@@ -17,12 +17,10 @@ import edu.ucne.composedemo.presentation.prioridades.PrioritiesTable
 @Composable
 fun PrioridadNavHost(
     navHostController: NavHostController,
-    context: Context
-){
+    db: PrioridadDb
+) {
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val prioridadDb = remember { PrioridadDb.getDatabase(context) }
-    val prioridadDao = remember { prioridadDb.prioridadDao() }
+    val prioridadDao = remember { db.prioridadDao() }
 
     val prioridadList by prioridadDao.getAll()
         .collectAsStateWithLifecycle(
@@ -34,7 +32,7 @@ fun PrioridadNavHost(
     NavHost(
         navController = navHostController,
         startDestination = Screen.PrioridadList
-    ){
+    ) {
         composable<Screen.PrioridadList> {
             PrioritiesTable(
                 prioridadesList = prioridadList,
@@ -43,6 +41,7 @@ fun PrioridadNavHost(
         }
         composable<Screen.Prioridad> {
             PriorityScreen(
+                db = db,
                 goPrioridadList = { navHostController.navigate(Screen.PrioridadList) }
             )
         }

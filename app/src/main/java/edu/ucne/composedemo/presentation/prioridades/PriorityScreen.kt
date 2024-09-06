@@ -48,7 +48,10 @@ import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPrioridadList: () -> Unit) {
+fun PriorityScreen(modifier: Modifier = Modifier,
+                   db: PrioridadDb,
+                   goPrioridadList: () -> Unit
+) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -57,7 +60,6 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
 
     // Cargar prioridades desde la base de datos
     LaunchedEffect(Unit) {
-        if (db != null) {
             coroutineScope.launch(Dispatchers.IO) {
                 db.prioridadDao().getAll().collect { list ->
                     withContext(Dispatchers.Main) {
@@ -65,7 +67,6 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
                     }
                 }
             }
-        }
     }
 
     Column(
@@ -77,7 +78,7 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
     ) {
 
         TopAppBar(
-            title = { Text("Registro de Prioridades") },
+            title = { Text("") },
             navigationIcon = {
                 IconButton(onClick = goPrioridadList) {
                     Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menú")
@@ -143,9 +144,27 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.SpaceBetween, // Mantiene los botones en los extremos
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Botón "Nuevo" a la izquierda
+                    Button(
+                        onClick = {
+                            descripcion = ""
+                            diasCompromiso = ""
+                            errorMessage = null
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Filled.Refresh, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Nuevo")
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp)) // Espacio entre los botones
+
+
                     Button(
                         onClick = {
                             val diasInt = diasCompromiso.toIntOrNull()
@@ -159,22 +178,31 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
                                 else -> {
                                     errorMessage = null
                                     coroutineScope.launch(Dispatchers.IO) {
-                                        val existingPrioridades = db!!.prioridadDao().getAll().first()
-                                        if (existingPrioridades.any { it.descripcion == descripcion }) {
-                                            withContext(Dispatchers.Main) {
-                                                errorMessage = "Ya existe una prioridad con esta descripción."
+                                        if (db != null) {
+                                            val existingPrioridades = db.prioridadDao().getAll().first()
+
+                                            if (existingPrioridades.any { it.descripcion == descripcion }) {
+                                                withContext(Dispatchers.Main) {
+                                                    errorMessage = "Ya existe una prioridad con esta descripción."
+                                                }
+                                            } else {
+                                                val prioridad = PrioridadEntity(
+                                                    descripcion = descripcion,
+                                                    diasCompromiso = diasInt
+                                                )
+                                                db.prioridadDao().save(prioridad)
+
+                                                withContext(Dispatchers.Main) {
+                                                    descripcion = ""
+                                                    diasCompromiso = ""
+                                                    errorMessage = null
+
+                                                    goPrioridadList()
+                                                }
                                             }
                                         } else {
-                                            val prioridad = PrioridadEntity(
-                                                descripcion = descripcion,
-                                                diasCompromiso = diasInt
-                                            )
-                                            db.prioridadDao().save(prioridad)
-
                                             withContext(Dispatchers.Main) {
-                                                descripcion = ""
-                                                diasCompromiso = ""
-                                                errorMessage = null
+                                                errorMessage = "Error: No se pudo acceder a la base de datos."
                                             }
                                         }
                                     }
@@ -189,27 +217,13 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null, goPri
                         Text("Guardar")
                     }
 
-                    Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
-                        onClick = {
-                            descripcion = ""
-                            diasCompromiso = ""
-                            errorMessage = null
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Filled.Refresh, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Nuevo")
-                    }
+
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        PrioritiesTable(prioridadesList)
     }
 }
