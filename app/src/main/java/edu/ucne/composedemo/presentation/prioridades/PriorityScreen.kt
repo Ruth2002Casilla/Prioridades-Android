@@ -16,11 +16,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,7 +44,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.material3.TopAppBarDefaults
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
     var descripcion by remember { mutableStateOf("") }
@@ -48,7 +54,6 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var prioridadesList by remember { mutableStateOf(listOf<PrioridadEntity>()) }
     val coroutineScope = rememberCoroutineScope()
-
 
     // Cargar prioridades desde la base de datos
     LaunchedEffect(Unit) {
@@ -70,6 +75,23 @@ fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
             .padding(top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // TopAppBar
+        TopAppBar(
+            title = { Text("Registro de Prioridades") },
+            navigationIcon = {
+                IconButton(onClick = { /* Manejar la navegacion aqui */ }) {
+                    Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menú")
+                }
+            },
+            colors = TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = Color.White,
+                navigationIconContentColor = Color.White
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
