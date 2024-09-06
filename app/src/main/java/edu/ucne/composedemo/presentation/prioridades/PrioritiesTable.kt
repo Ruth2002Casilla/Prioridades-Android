@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,14 +20,28 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.*
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrioritiesTable(
     prioridadesList: List<PrioridadEntity>,
-    onAddPriority: () -> Unit
+    onAddPriority: () -> Unit,
+    onEditPriority: (PrioridadEntity) -> Unit,
+    onDeletePriority: (PrioridadEntity) -> Unit
 ) {
+    var expandedPriorityId by remember { mutableStateOf<Int?>(null) }
+    var priorityToActUpon by remember { mutableStateOf<PrioridadEntity?>(null) }
+
+    val colors = MaterialTheme.colorScheme
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -36,7 +49,9 @@ fun PrioritiesTable(
                 title = {
                     Text(
                         text = "Datos Prioridades",
-                        style = MaterialTheme.typography.titleLarge.copy(color = Color(0xFF6200EE))
+                        style = MaterialTheme.typography.titleLarge.copy(color = colors.primary),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 }
             )
@@ -61,27 +76,27 @@ fun PrioritiesTable(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF333333))
+                            .background(colors.surfaceVariant)
                             .padding(vertical = 8.dp, horizontal = 16.dp)
                     ) {
                         Text(
-                            "ID",
+                            text = "ID",
                             modifier = Modifier.weight(1f),
-                            color = Color.White,
+                            color = colors.onSurfaceVariant,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            "DESCRIPCIÓN",
+                            text = "DESCRIPCIÓN",
                             modifier = Modifier.weight(3f),
-                            color = Color.White,
+                            color = colors.onSurfaceVariant,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            "DÍAS COMPROMISO",
+                            text = "DÍAS COMPROMISO",
                             modifier = Modifier.weight(2f),
-                            color = Color.White,
+                            color = colors.onSurfaceVariant,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center
                         )
@@ -89,32 +104,38 @@ fun PrioritiesTable(
 
                     Spacer(modifier = Modifier.height(8.dp))
                 }
+
                 items(prioridadesList) { prioridad ->
                     // Data Rows
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF444444))
+                            .background(colors.surfaceVariant.copy(alpha = 0.7f))
                             .padding(vertical = 8.dp, horizontal = 16.dp)
+                            .clickable {
+                                priorityToActUpon = prioridad
+                                expandedPriorityId = prioridad.prioridadId
+                            },
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            prioridad.prioridadId.toString(),
+                            text = prioridad.prioridadId.toString(),
                             modifier = Modifier.weight(1f),
-                            color = Color.White,
+                            color = colors.onSurface,
                             fontSize = 11.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            prioridad.descripcion ?: "",
+                            text = prioridad.descripcion ?: "",
                             modifier = Modifier.weight(3f),
-                            color = Color.White,
+                            color = colors.onSurface,
                             fontSize = 11.sp,
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            "${prioridad.diasCompromiso} días",
+                            text = "${prioridad.diasCompromiso} días",
                             modifier = Modifier.weight(2f),
-                            color = Color.White,
+                            color = colors.onSurface,
                             fontSize = 11.sp,
                             textAlign = TextAlign.Center
                         )
@@ -124,5 +145,43 @@ fun PrioritiesTable(
                 }
             }
         }
+
+        // Dropdown menu for actions
+        priorityToActUpon?.let { prioridad ->
+            DropdownMenu(
+                expanded = expandedPriorityId == prioridad.prioridadId,
+                onDismissRequest = { expandedPriorityId = null }
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        onEditPriority(prioridad)
+                        expandedPriorityId = null
+                    },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Edit, contentDescription = "Editar", tint = colors.onSurface)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Editar", color = colors.onSurface)
+                        }
+                    }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        onDeletePriority(prioridad)
+                        expandedPriorityId = null
+                    },
+                    text = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = colors.onSurface)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Eliminar", color = colors.onSurface)
+                        }
+                    }
+                )
+            }
+        }
     }
 }
+
+
+
