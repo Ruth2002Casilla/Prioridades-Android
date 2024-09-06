@@ -3,7 +3,8 @@ import com.android.build.gradle.internal.utils.isKspPluginApplied
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
-
+    id("com.google.devtools.ksp") // Añadir KSP
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -76,12 +77,15 @@ dependencies {
 
     //room
     implementation(libs.androidx.room.runtime)
-    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+    //  optional - Kotlin Extensions and Coroutines support for Room
+    implementation("androidx.room:room-ktx:2.6.1")
 
     //hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
 
     //retrofit
     implementation(libs.retrofit)

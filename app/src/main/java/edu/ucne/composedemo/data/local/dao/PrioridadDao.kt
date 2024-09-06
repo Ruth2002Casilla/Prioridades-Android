@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PrioridadDao {
     @Upsert
-    suspend fun save(prioridad: PrioridadEntity) : Long
+    suspend fun save(prioridad: PrioridadEntity)
 
     @Query(
         """
@@ -23,7 +23,7 @@ interface PrioridadDao {
     suspend fun find(id: Int): PrioridadEntity?
 
     @Delete
-    suspend fun delete(aporte: PrioridadEntity)
+    suspend fun delete(da: PrioridadEntity)
 
     @Query("SELECT * FROM Prioridades")
     fun getAll(): Flow<List<PrioridadEntity>>

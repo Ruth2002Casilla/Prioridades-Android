@@ -13,6 +13,7 @@ import androidx.room.Room
     exportSchema = false
 )
 abstract class PrioridadDb : RoomDatabase() {
+
     abstract fun prioridadDao(): PrioridadDao
 
     companion object {
@@ -24,14 +25,13 @@ abstract class PrioridadDb : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     PrioridadDb::class.java,
-                    "prioridades_database"
+                    "prioridad_database"
                 ).build()
                 INSTANCE = instance
                 instance
             }
         }
     }
-
 }
 
 

@@ -8,7 +8,7 @@ data class PrioridadEntity(
     @PrimaryKey(autoGenerate = true)
     val prioridadId: Int? = null,
     var descripcion: String? = "",
-    var diasCompromiso: Int? = 0
+    var diasCompromiso: Int? = null
 )
 
 /*Entidad*/

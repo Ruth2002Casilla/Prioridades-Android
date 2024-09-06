@@ -21,38 +21,62 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import edu.ucne.composedemo.ui.theme.ProjectPrioridadesTheme
 import androidx.compose.ui.text.TextStyle
+import androidx.room.Room
+import edu.ucne.composedemo.data.local.database.PrioridadDb
 import edu.ucne.composedemo.data.local.entities.PrioridadEntity
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             ProjectPrioridadesTheme {
+                val db = remember { PrioridadDb.getDatabase(applicationContext) } // Singleton para la base de datos
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color(0xFFECECEC))
                 ) { innerPadding ->
-                    PriorityScreen(modifier = Modifier.padding(innerPadding))
+                    PriorityScreen(modifier = Modifier.padding(innerPadding), db = db)
                 }
             }
         }
     }
 }
 
+
 @Composable
-fun PriorityScreen(modifier: Modifier = Modifier) {
+fun PriorityScreen(modifier: Modifier = Modifier, db: PrioridadDb? = null) {
     var descripcion by remember { mutableStateOf("") }
     var diasCompromiso by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var prioridadesList by remember { mutableStateOf(listOf<PrioridadEntity>()) }
+    val coroutineScope = rememberCoroutineScope()
+
+
+    // Cargar prioridades desde la base de datos
+    LaunchedEffect(Unit) {
+        if (db != null) {
+            coroutineScope.launch(Dispatchers.IO) {
+                db.prioridadDao().getAll().collect { list ->
+                    withContext(Dispatchers.Main) {
+                        prioridadesList = list
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFECECEC))
-            .padding(top = 32.dp),  // Añade margen
+            .padding(top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
@@ -77,7 +101,7 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    textStyle = TextStyle(color = Color.Black)  // color
+                    textStyle = TextStyle(color = Color.Black)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -90,11 +114,10 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
-                    textStyle = TextStyle(color = Color.Black)  // color
+                    textStyle = TextStyle(color = Color.Black)
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
-
 
                 if (errorMessage != null) {
                     Text(
@@ -122,12 +145,26 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                                 }
                                 else -> {
                                     errorMessage = null
-                                    prioridadesList = prioridadesList + PrioridadEntity(
-                                        descripcion = descripcion,
-                                        diasCompromiso = diasInt
-                                    )
-                                    descripcion = ""
-                                    diasCompromiso = ""
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        val existingPrioridades = db!!.prioridadDao().getAll().first()
+                                        if (existingPrioridades.any { it.descripcion == descripcion }) {
+                                            withContext(Dispatchers.Main) {
+                                                errorMessage = "Ya existe una prioridad con esta descripción."
+                                            }
+                                        } else {
+                                            val prioridad = PrioridadEntity(
+                                                descripcion = descripcion,
+                                                diasCompromiso = diasInt
+                                            )
+                                            db.prioridadDao().save(prioridad)
+
+                                            withContext(Dispatchers.Main) {
+                                                descripcion = ""
+                                                diasCompromiso = ""
+                                                errorMessage = null
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         },
@@ -138,8 +175,6 @@ fun PriorityScreen(modifier: Modifier = Modifier) {
                         Spacer(Modifier.width(4.dp))
                         Text("Guardar")
                     }
-
-
 
                     Spacer(modifier = Modifier.width(16.dp))
 
@@ -185,27 +220,21 @@ fun PrioritiesTable(prioridadesList: List<PrioridadEntity>) {
         ) {
             Text(
                 "ID",
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                color = Color.White, // El color del texto
-                fontSize = 12.sp,  // Ajusta el tamaño
-                textAlign = TextAlign.Center  // Centraliza el texto
+                modifier = Modifier.weight(1f),
+                color = Color.White,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
             )
             Text(
                 "DESCRIPCIÓN",
-                modifier = Modifier
-                    .weight(3f)
-                    .fillMaxWidth(),
+                modifier = Modifier.weight(3f),
                 color = Color.White,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center
             )
             Text(
                 "DÍAS COMPROMISO",
-                modifier = Modifier
-                    .weight(2f)
-                    .fillMaxWidth(),
+                modifier = Modifier.weight(2f),
                 color = Color.White,
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center
@@ -223,36 +252,29 @@ fun PrioritiesTable(prioridadesList: List<PrioridadEntity>) {
             ) {
                 Text(
                     prioridad.prioridadId.toString(),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),  // Asegura que el Text ocupe todo el ancho de su peso
+                    modifier = Modifier.weight(1f),
                     color = Color.White,
-                    fontSize = 11.sp,  // Tamaño de letra
-                    textAlign = TextAlign.Center  // Centraliza el texto
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center
                 )
                 Text(
                     prioridad.descripcion ?: "",
-                    modifier = Modifier
-                        .weight(3f)
-                        .fillMaxWidth(),
+                    modifier = Modifier.weight(3f),
                     color = Color.White,
-                    fontSize = 11.sp,  // Tamaño de letra
-                    textAlign = TextAlign.Center  // Centraliza el texto
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center
                 )
                 Text(
                     "${prioridad.diasCompromiso} días",
-                    modifier = Modifier
-                        .weight(2f)
-                        .fillMaxWidth(),
+                    modifier = Modifier.weight(2f),
                     color = Color.White,
-                    fontSize = 11.sp,  // Tamaño de letra
-                    textAlign = TextAlign.Center  // Centraliza el texto
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center
                 )
             }
 
             Spacer(modifier = Modifier.height(4.dp))
         }
-
     }
 }
 
@@ -260,6 +282,6 @@ fun PrioritiesTable(prioridadesList: List<PrioridadEntity>) {
 @Composable
 fun PriorityScreenPreview() {
     ProjectPrioridadesTheme {
-        PriorityScreen()
+        PriorityScreen( db = null)
     }
 }
