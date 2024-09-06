@@ -26,7 +26,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,33 +40,22 @@ import androidx.compose.ui.unit.dp
 import edu.ucne.composedemo.data.local.database.PrioridadDb
 import edu.ucne.composedemo.data.local.entities.PrioridadEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PriorityScreen(modifier: Modifier = Modifier,
-                   db: PrioridadDb,
-                   goPrioridadList: () -> Unit
+fun PriorityScreen(
+    modifier: Modifier = Modifier,
+    db: PrioridadDb? = null,
+    goPrioridadList: () -> Unit,
+    prioridadToEdit: PrioridadEntity? = null
 ) {
-    var descripcion by remember { mutableStateOf("") }
-    var diasCompromiso by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf(prioridadToEdit?.descripcion ?: "") }
+    var diasCompromiso by remember { mutableStateOf(prioridadToEdit?.diasCompromiso?.toString() ?: "") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var prioridadesList by remember { mutableStateOf(listOf<PrioridadEntity>()) }
     val coroutineScope = rememberCoroutineScope()
-
-    // Cargar prioridades desde la base de datos
-    LaunchedEffect(Unit) {
-            coroutineScope.launch(Dispatchers.IO) {
-                db.prioridadDao().getAll().collect { list ->
-                    withContext(Dispatchers.Main) {
-                        prioridadesList = list
-                    }
-                }
-            }
-    }
 
     Column(
         modifier = modifier
@@ -164,11 +152,12 @@ fun PriorityScreen(modifier: Modifier = Modifier,
 
                     Spacer(modifier = Modifier.width(16.dp)) // Espacio entre los botones
 
-
+                    // Botón "Guardar" a la derecha
                     Button(
                         onClick = {
                             val diasInt = diasCompromiso.toIntOrNull()
                             when {
+                                // Validación de descripción y días de compromiso
                                 descripcion.isEmpty() || !descripcion[0].isUpperCase() -> {
                                     errorMessage = "La descripción debe comenzar con una letra mayúscula"
                                 }
@@ -176,34 +165,31 @@ fun PriorityScreen(modifier: Modifier = Modifier,
                                     errorMessage = "Por favor ingrese un número válido entre 1 y 365"
                                 }
                                 else -> {
+                                    // Resetear mensaje de error si no hay
                                     errorMessage = null
                                     coroutineScope.launch(Dispatchers.IO) {
-                                        if (db != null) {
-                                            val existingPrioridades = db.prioridadDao().getAll().first()
-
-                                            if (existingPrioridades.any { it.descripcion == descripcion }) {
-                                                withContext(Dispatchers.Main) {
-                                                    errorMessage = "Ya existe una prioridad con esta descripción."
-                                                }
-                                            } else {
-                                                val prioridad = PrioridadEntity(
-                                                    descripcion = descripcion,
-                                                    diasCompromiso = diasInt
-                                                )
-                                                db.prioridadDao().save(prioridad)
-
-                                                withContext(Dispatchers.Main) {
-                                                    descripcion = ""
-                                                    diasCompromiso = ""
-                                                    errorMessage = null
-
-                                                    goPrioridadList()
-                                                }
-                                            }
+                                        if (prioridadToEdit != null) {
+                                            // Actualizar prioridad existente
+                                            val updatedPrioridad = prioridadToEdit.copy(
+                                                descripcion = descripcion,
+                                                diasCompromiso = diasInt
+                                            )
+                                            db!!.prioridadDao().update(updatedPrioridad)
                                         } else {
-                                            withContext(Dispatchers.Main) {
-                                                errorMessage = "Error: No se pudo acceder a la base de datos."
-                                            }
+                                            // Crear nueva prioridad
+                                            val nuevaPrioridad = PrioridadEntity(
+                                                descripcion = descripcion,
+                                                diasCompromiso = diasInt
+                                            )
+                                            db!!.prioridadDao().save(nuevaPrioridad)
+                                        }
+
+                                        withContext(Dispatchers.Main) {
+                                            // Limpiar campos y redirigir a la lista de prioridades
+                                            descripcion = ""
+                                            diasCompromiso = ""
+                                            errorMessage = null
+                                            goPrioridadList() // Aquí navega a la ruta de la lista
                                         }
                                     }
                                 }
@@ -216,8 +202,6 @@ fun PriorityScreen(modifier: Modifier = Modifier,
                         Spacer(Modifier.width(4.dp))
                         Text("Guardar")
                     }
-
-
 
                 }
             }
