@@ -3,6 +3,7 @@ import com.android.build.gradle.internal.utils.isKspPluginApplied
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     id("com.google.devtools.ksp") // Añadir KSP
     id("org.jetbrains.kotlin.plugin.compose")
 }
@@ -74,6 +75,7 @@ dependencies {
     //Navigation
     implementation(libs.androidx.navigation.fragment.compose)
     implementation(libs.gson)
+    implementation(libs.kotlin.serialization.json)
 
     //room
     implementation(libs.androidx.room.runtime)
