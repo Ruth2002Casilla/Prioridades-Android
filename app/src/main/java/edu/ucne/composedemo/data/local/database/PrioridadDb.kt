@@ -19,6 +19,7 @@ abstract class PrioridadDb : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: PrioridadDb? = null
+        const val name = "prioridad_databas"
 
         fun getDatabase(context: Context): PrioridadDb {
             return INSTANCE ?: synchronized(this) {
@@ -33,6 +34,7 @@ abstract class PrioridadDb : RoomDatabase() {
         }
     }
 }
+
 
 
 
